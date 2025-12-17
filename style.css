@@ -1,0 +1,95 @@
+/* General Body */
+body {
+  font-family: 'Arial', sans-serif;
+  background: #121212;
+  color: #fff;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 50px 20px;
+  min-height: 100vh;
+}
+
+/* Heading */
+h1 {
+  color: #00ffff;
+  text-shadow: 1px 1px 5px #000;
+  margin-bottom: 30px;
+  font-size: 2.2em;
+  text-align: center;
+}
+
+/* Textarea */
+textarea {
+  width: 100%;
+  max-width: 700px;
+  padding: 15px;
+  border-radius: 12px;
+  border: none;
+  outline: none;
+  font-size: 16px;
+  resize: vertical;
+  background: #1f1f1f;
+  color: #fff;
+  box-shadow: 0 0 10px rgba(0,255,255,0.2);
+}
+
+/* Button */
+button {
+  margin-top: 20px;
+  padding: 12px 30px;
+  font-size: 16px;
+  font-weight: bold;
+  color: #fff;
+  background: #00ffff;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: 0.3s;
+  box-shadow: 0 0 10px rgba(0,255,255,0.5);
+}
+
+button:hover {
+  background: #00cccc;
+  box-shadow: 0 0 15px rgba(0,255,255,0.7);
+}
+
+/* Audio Player */
+audio {
+  margin-top: 25px;
+  width: 100%;
+  max-width: 700px;
+  outline: none;
+  border-radius: 8px;
+  background: #1f1f1f;
+  box-shadow: 0 0 10px rgba(0,255,255,0.2);
+}
+
+/* Download Link */
+a#downloadLink {
+  display: inline-block;
+  margin-top: 20px;
+  padding: 12px 25px;
+  background: #00ffff;
+  color: #000;
+  text-decoration: none;
+  border-radius: 10px;
+  font-weight: bold;
+  transition: 0.3s;
+  box-shadow: 0 0 10px rgba(0,255,255,0.5);
+}
+
+a#downloadLink:hover {
+  background: #00cccc;
+  box-shadow: 0 0 15px rgba(0,255,255,0.7);
+}
+
+/* Responsive for mobile */
+@media (max-width: 750px) {
+  textarea, audio {
+    max-width: 90%;
+  }
+  h1 {
+    font-size: 1.8em;
+  }
+}
