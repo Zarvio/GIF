@@ -2,52 +2,33 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>ElevenLabs TTS</title>
+  <title>YouTube Trim & Download</title>
   <link rel="stylesheet" href="style.css">
+  <script src="https://www.youtube.com/iframe_api"></script>
 </head>
 <body>
-  <h1>ElevenLabs Text-to-Speech</h1>
+  <h2>YouTube Video Trim & Download</h2>
 
-  <textarea id="textInput" rows="5" placeholder="Type your text here..."></textarea><br>
-  <button id="generateBtn">Generate Speech</button><br>
-  <audio id="audioPlayer" controls></audio><br>
-  <a id="downloadLink" href="#" download="output.mp3">Download Speech</a>
+  <input id="url" placeholder="Paste YouTube video link here" />
+  <br>
+  <button onclick="loadVideo()">Load Video</button>
 
-  <script>
-    const generateBtn = document.getElementById("generateBtn");
-    const textInput = document.getElementById("textInput");
-    const audioPlayer = document.getElementById("audioPlayer");
-    const downloadLink = document.getElementById("downloadLink");
+  <div id="player"></div>
 
-    generateBtn.addEventListener("click", async () => {
-      const text = textInput.value.trim();
-      if (!text) return alert("Enter some text");
+  <div id="controls">
+    <div class="time">Start: <span id="startLabel">00:00</span></div>
+    <input type="range" id="start" min="0">
+    <input type="number" id="startInput" min="0">
 
-      try {
-        const res = await fetch("/tts", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ text })
-        });
+    <div class="time">End: <span id="endLabel">00:00</span></div>
+    <input type="range" id="end" min="0">
+    <input type="number" id="endInput" min="0">
 
-        if (!res.ok) {
-          const errorText = await res.text();
-          throw new Error(errorText || "Server Error");
-        }
+    <br><br>
+    <button onclick="trim()">Trim & Download</button>
+    <div id="progress"></div>
+  </div>
 
-        const blob = await res.blob();
-        const url = URL.createObjectURL(blob);
-
-        audioPlayer.src = url;
-        audioPlayer.play();
-        downloadLink.href = url;
-
-      } catch (err) {
-        alert("❌ Error: " + err.message);
-        console.error(err);
-      }
-    });
-  </script>
+  <script src="script.js"></script>
 </body>
 </html>
