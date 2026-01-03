@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>User Profile</title>
+  <link rel="stylesheet" href="user.css">
+      <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-storage.js"></script>
+
+</head>
+
+<body>
+  <!-- SKELETON LOADER -->
+<!-- PROFILE SKELETON -->
+<div id="skeletonProfile" class="profile-container">
+
+  <div class="sk-avatar"></div>
+
+  <div class="sk-name"></div>
+  <div class="sk-username"></div>
+
+<!-- followers / following skeleton -->
+<div class="sk-stats">
+  <div class="sk-stat"></div>
+  <div class="sk-stat"></div>
+</div>
+
+
+  <div class="sk-btn"></div>
+  <div class="sk-btn"></div>
+
+  <div class="sk-heading"></div>
+
+  <div class="sk-video-grid">
+    <div class="sk-video"></div>
+    <div class="sk-video"></div>
+    <div class="sk-video"></div>
+    <div class="sk-video"></div>
+    <div class="sk-video"></div>
+    <div class="sk-video"></div>
+  </div>
+
+</div>
+
+
+
+
+  <!-- Followers / Following Modal -->
+<div id="followersModal" class="hidden modal-overlay">
+  <div class="modal-content">
+    <span id="closeFollowers" class="close-btn">❌</span>
+    <h3>Followers</h3>
+    <div id="followersList"></div>
+  </div>
+</div>
+  <div id="profileView" class="profile-container hidden">
+  <img id="profilePic" class="profile-pic" src="default.jpg" alt="Profile Picture">
+  <h2 id="displayName"></h2>
+  <p id="displayUsername"></p>
+  <p id="displayBio" style="text-align:center; font-size:13px; opacity:.8;"></p>
+
+  <div class="follow-info counts">
+    <div id="followersBtn" class="count-btn">
+      <span id="followersCount">0</span>
+      <span class="lbl">followers</span>
+    </div>
+
+    <div id="followingBtn" class="count-btn">
+      <span id="followingCount">0</span>
+      <span class="lbl">following</span>
+    </div>
+  </div>
+
+  <button id="followBtn">Follow</button>
+  <button id="messageBtn" class="msg-btn">Message</button>
+</div>
+
+<div id="userVideosSection" style="display:none;">
+  <h3>User Videos</h3>
+  <div id="userVideos">
+    <p class="empty-text">Loading videos...</p>
+  </div>
+</div>
+
+
+
+
+<nav class="bottom-nav">
+    <a class="nav-item" id="btnHome">
+        <i class="fa-solid fa-house"></i>
+        <span>Home</span>
+    </a>
+
+    <a class="nav-item active" id="btnSearch">
+        <i class="fa-solid fa-magnifying-glass"></i>
+        <span>Search</span>
+    </a>
+
+<a class="nav-item" id="btnUpload">
+        <i class="fa-solid fa-plus"></i>
+        <span>Upload</span>
+    </a>
+
+    <a class="nav-item" id="btnNotifs">
+        <i class="fa-regular fa-bell"></i>
+        <span>Notification</span>
+    </a>
+
+    <a class="nav-item" id="btnProfile">
+        <i class="fa-regular fa-circle-user"></i>
+        <span>Profile</span>
+    </a>
+</nav>
+
+
+<div id="userVideos" class="videos-container">
+  <p class="empty-text"></p>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="user.js"></script>
+</body>
+</html>

@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Profile — Pinoro</title>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <link rel="stylesheet" href="profile.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+
+  <!-- Firebase v8 -->
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-storage.js"></script>
+</head>
+<body>
+<!-- DELETE CONFIRM POPUP -->
+<div id="deletePopup" class="hidden">
+  <div class="popup-content">
+    <h3>Delete this video?</h3>
+    <p>This action cannot be undone.</p>
+    <div class="popup-buttons">
+      <button id="confirmDelete">Delete</button>
+      <button id="cancelDelete">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- Logout Popup -->
+<!-- Logout Popup -->
+<div id="logoutPopup" class="hidden">
+  <div class="popup-content">
+    <h3>Are you sure you want to logout?</h3>
+    <div class="popup-buttons">
+      <button id="logoutYes">Yes</button>
+      <button id="logoutNo">No</button>
+    </div>
+  </div>
+</div>
+
+  
+  <div id="customPopup" class="custom-popup hidden">
+  <span id="popupText">Profile Updated 🎉</span>
+</div>
+<!-- FOLLOWERS LIST MODAL -->
+<div id="followersModal" class="modal hidden">
+  <div class="modal-box">
+    <div class="modal-header">
+      <h3>Followers</h3>
+      <button id="closeFollowers">✖</button>
+    </div>
+    <div id="followersList" class="followers-list"></div>
+  </div>
+</div>
+
+  <div class="page">
+
+    <header class="header">
+  <div class="left"></div>
+
+  <div class="title">Profile</div>
+
+  <div class="right">
+    <button id="menuBtn" class="menu-btn">
+      <i class="fa-solid fa-bars"></i>
+    </button>
+  </div>
+</header>
+
+
+    <main class="container">
+
+      <!-- LOGIN CARD -->
+      <div id="loginBox" class="card center">
+        <img src="default.jpg" alt="avatar" class="login-avatar">
+        <h2>Continue with Google</h2>
+        <button id="googleLoginBtn" class="btn primary">
+          <i class="fa-brands fa-google"></i> Continue with Google
+        </button>
+        <p class="muted">Only needed to upload or follow. You can still browse without login.</p>
+      </div>
+
+      <!-- NAME FORM -->
+      <div id="nameBox" class="card hidden">
+        <h2>Enter your name</h2>
+        <div class="row">
+          <input id="firstName" placeholder="First name" />
+          <input id="lastName" placeholder="Surname" />
+        </div>
+        <button id="saveNameBtn" class="btn">Continue</button>
+      </div>
+
+      <!-- USERNAME FORM -->
+      <div id="usernameBox" class="card hidden">
+        <h2>Choose a username</h2>
+        <div class="username-field">
+          <div class="at">@</div>
+          <input id="username" placeholder="username (min 4 chars)" />
+          <div id="usernameIcon" class="status-icon"></div>
+        </div>
+        <p id="errorMsg" class="error"></p>
+        <button id="saveUsernameBtn" class="btn disabled" disabled>Save</button>
+      </div>
+
+<!-- Profile Complete Popup -->
+<div id="profilePopup" class="popup hidden">
+  <div class="popup-box">
+      <h2>🎉 Profile Completed!</h2>
+      <p>Your profile is now ready.</p>
+      <button id="popupBtn">Let's Go</button>
+  </div>
+</div>
+
+
+<!-- Loader Overlay -->
+  <div id="loaderOverlay" class="loader-overlay">
+    <div class="loader"></div>
+  </div>
+
+
+<!-- SIDE MENU -->
+<div id="sideMenu" class="side-menu hidden">
+  <div class="side-header">
+    <h3>Menu</h3>
+    <button id="closeMenu"><i class="fa-solid fa-xmark"></i></button>
+  </div>
+
+ <ul class="side-links">
+  <li id="helpLink"><i class="fa-solid fa-circle-info"></i> Help Center</li>
+  <li id="settingsLink"><i class="fa-solid fa-gear"></i> Settings</li>
+  <li id="privacyLink"><i class="fa-solid fa-shield"></i> Privacy Policy</li>
+  <li id="contactLink"><i class="fa-solid fa-envelope"></i> Contact Us</li>
+</ul>
+
+</div>
+
+<!-- Overlay -->
+<div id="menuOverlay" class="menu-overlay hidden"></div>
+
+<div id="infoPopup" class="popup hidden">
+  <div class="popup-box">
+    <span id="closeInfoPopup" class="close-btn"><i class="fa-solid fa-circle-xmark"></i></span>
+    <div id="popupContent"></div>
+  </div>
+</div>
+
+      <!-- DONE / PROFILE PAGE -->
+      <section id="profileView" class="card hidden profile-card">
+        <div class="avatar-wrap">
+          <div class="avatar-ring">
+            <img id="profilePic" class="avatar" src="default.jpg" alt="avatar">
+          </div>
+          <label for="uploadPhoto" class="edit-photo" title="Change photo">
+            <i class="fa-solid fa-pen"></i>
+          </label>
+          <input id="uploadPhoto" type="file" accept="image/*" hidden>
+        </div>
+
+        <div class="info">
+          <h2 id="displayName" class="name">Your Name</h2>
+          <p id="displayUsername" class="handle">@username</p>
+
+          <div class="counts">
+  <div id="followersBtn" class="count-btn">
+    <span id="followersCount" class="num">0</span>
+    <span class="lbl">followers</span>
+  </div>
+
+  <div id="followingBtn" class="count-btn">
+    <span id="followingCount" class="num">0</span>
+    <span class="lbl">following</span>
+  </div>
+</div>
+
+
+          <div class="actions">
+
+  <!-- Bio text (profile ke niche show hoga) -->
+  <p id="displayBio" class="profile-bio"></p>
+
+  <!-- Edit Profile Button -->
+  <button id="editProfileBtn" class="edit-profile-btn">
+    Edit Profile
+  </button>
+
+  <!-- Edit Profile Modal -->
+  <div id="editProfileModal" class="edit-profile-modal hidden">
+
+  <!-- Header with back arrow -->
+  <div class="edit-header">
+    <span id="closeEditModal" class="back-arrow">❌</span>
+    <span class="edit-title">Edit Profile</span>
+  </div>
+
+  <textarea 
+    id="bioInput" 
+    maxlength="150" 
+    placeholder="Write your bio (max 150 characters)">
+  </textarea>
+
+  <input 
+    type="text" 
+    id="newUsernameInput" 
+    placeholder="Change username" 
+  />
+
+  <div id="usernameStatus"></div>
+
+  <button id="saveProfileBtn" class="save-profile-btn">
+    Save Changes
+  </button>
+
+</div>
+<button id="logoutBtn">Logout</button>
+
+
+</div>
+
+<div id="cropModal" class="hidden crop-modal">
+  <div class="crop-box">
+    <canvas id="cropCanvas" width="300" height="300"></canvas>
+    <input type="range" id="zoomRange" min="0.5" max="4" step="0.01" value="1">
+
+    <div class="crop-actions">
+      <button id="cancelCrop">Cancel</button>
+      <button id="saveCrop">Save</button>
+    </div>
+  </div>
+</div>
+
+
+        <div class="tabs">
+  <button class="tab active">Videos</button>
+</div>
+
+<!-- USER VIDEOS -->
+<div id="userVideos" class="videos-grid">
+  <p class="empty-text">No videos uploaded yet</p>
+</div>
+
+      </section>
+
+    </main>
+
+    <!-- Bottom navigation (kept similar to your current) -->
+    <nav class="bottom-nav">
+      <a class="nav-item" id="btnHome"><i class="fa-solid fa-house"></i><span>Home</span></a>
+      <a class="nav-item" id="btnSearch"><i class="fa-solid fa-magnifying-glass"></i><span>Search</span></a>
+      <a class="nav-item" id="btnUpload"><i class="fa-solid fa-plus"></i><span>Upload</span></a>
+      <a class="nav-item" id="btnNotifs"><i class="fa-regular fa-bell"></i><span>Notification</span></a>
+      <a class="nav-item active" id="btnProfile"><i class="fa-regular fa-circle-user"></i><span>Profile</span></a>
+    </nav>
+
+    <script src="profile.js"></script>
+  </div>
+  
+</body>
+</html>

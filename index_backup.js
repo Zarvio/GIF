@@ -12,13 +12,12 @@ function showSkeletons(count = 6) {
     box.className = "pin-box";
 
     box.innerHTML = `
-  <div style="display:flex;align-items:center;gap:8px;padding:8px;">
-    <div class="skeleton skeleton-dp"></div>
-    <div class="skeleton skeleton-name"></div>
-  </div>
-  <div class="mediaContainer skeleton skeleton-video"></div>
-`;
-
+      <div class="mediaContainer skeleton skeleton-video"></div>
+      <div style="display:flex;align-items:center;gap:8px;padding:8px;">
+        <div class="skeleton skeleton-dp"></div>
+        <div class="skeleton skeleton-name"></div>
+      </div>
+    `;
     main.appendChild(box);
   }
 }
@@ -431,193 +430,136 @@ function getSmartRelated(currentPost, allPosts) {
 
   main.innerHTML = "";
 
-if (!posts || posts.length === 0) {
-    main.innerHTML = "<p>No videos found.</p>";
-    return;
+
+        if (!posts || posts.length === 0) {
+            main.innerHTML = "<p>No videos found.</p>";
+            return;
+        }
+
+        const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+
+        posts.forEach(post => {
+
+            const box = document.createElement("div");
+            box.classList.add("pin-box");
+
+            const mediaContainer = document.createElement("div");
+            mediaContainer.className = "mediaContainer";
+
+            // OVERLAY
+            const overlay = document.createElement("div");
+            overlay.className = "uploaderOverlay";
+
+            const verified = post.uploader_verified === true 
+                || post.uploader_verified === 'true' 
+                || post.uploader_verified === 1 
+                || post.uploader_verified === '1';
+
+            const badgeHTML = verified 
+                ? `<img src="https://upload.wikimedia.org/wikipedia/commons/e/e4/Twitter_Verified_Badge.svg" style="width:16px; height:16px;">` 
+                : '';
+
+            overlay.innerHTML = `
+                <div style="display:flex; align-items:center; gap:8px; width:100%;">
+                    <img src="${post.uploader_image ? post.uploader_image + '?t=' + Date.now() : 'default.jpg'}" class="uploaderDP" alt="uploader">
+                    <div style="display:flex; align-items:center; gap:6px;">
+                        <span class="uploaderName">${post.uploader_name || 'Unknown'}</span>
+                        ${badgeHTML}
+                    </div>
+                </div>
+            `;
+            // overlay ke andar div ko select karo
+const uploaderDiv = overlay.querySelector('div');
+if (uploaderDiv) {
+    uploaderDiv.style.cursor = "pointer";
+    uploaderDiv.addEventListener("click", (e) => {
+        e.stopPropagation(); // video click se conflict na ho
+        if (post.uploader_uid) {
+            window.location.href = `user.html?uid=${post.uploader_uid}`;
+        }
+    });
 }
 
-const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+            mediaContainer.appendChild(overlay);
 
-posts.forEach(post => {
+            // VIEWS
+            const viewsOverlay = document.createElement("div");
+            viewsOverlay.className = "viewsOverlay";
+            viewsOverlay.innerHTML = `
+                <i class="fa-regular fa-eye"></i>
+                <span class="viewCount">${post.views ? post.views.toLocaleString() : 0}</span>
+            `;
+            mediaContainer.appendChild(viewsOverlay);
 
-    const box = document.createElement("div");
-    box.classList.add("pin-box");
-
-    const mediaContainer = document.createElement("div");
-    mediaContainer.className = "mediaContainer";
-
-    // SKELETON FIRST
-    const skeleton = document.createElement("div");
-    skeleton.className = "skeleton skeleton-video";
-    mediaContainer.appendChild(skeleton);
-
-    // OVERLAY
-    const overlay = document.createElement("div");
-    overlay.className = "uploaderOverlay";
-    overlay.style.display = "none"; // hide overlay until media loads
-
-    const verified = post.uploader_verified === true 
-        || post.uploader_verified === 'true' 
-        || post.uploader_verified === 1 
-        || post.uploader_verified === '1';
-
-    const badgeHTML = verified 
-        ? `<img src="https://upload.wikimedia.org/wikipedia/commons/e/e4/Twitter_Verified_Badge.svg" style="width:16px; height:16px;">` 
-        : '';
-
-    overlay.innerHTML = `
-        <div style="display:flex; align-items:center; gap:8px; width:100%;">
-            <img src="${post.uploader_image ? post.uploader_image + '?t=' + Date.now() : 'default.jpg'}" class="uploaderDP" alt="uploader">
-            <div style="display:flex; align-items:center; gap:6px;">
-                <span class="uploaderName">${post.uploader_name || 'Unknown'}</span>
-                ${badgeHTML}
-            </div>
-        </div>
-    `;
-const uploaderImg = overlay.querySelector(".uploaderDP");
-uploaderImg.addEventListener("load", () => {
-    uploaderImg.classList.add("loaded");  // fade-in effect ke liye
-});
-    const uploaderDiv = overlay.querySelector('div');
-    if (uploaderDiv) {
-        uploaderDiv.style.cursor = "pointer";
-        uploaderDiv.addEventListener("click", (e) => {
-            e.stopPropagation();
-            if (post.uploader_uid) {
-                window.location.href = `user.html?uid=${post.uploader_uid}`;
+            // MEDIA
+            let media;
+            if (post.file_type.startsWith("video") && isMobile) {
+                media = document.createElement("img");
+                media.src = post.thumb_url || "default.jpg";
+            } else if (post.file_type.startsWith("video")) {
+                media = document.createElement("video");
+                media.src = post.file_url;
+                media.muted = true;
+                media.loop = true;
+                media.playsInline = true;
+                media.preload = "metadata";
+            } else {
+                media = document.createElement("img");
+                media.src = post.file_url;
             }
-        });
-    }
 
-    mediaContainer.appendChild(overlay);
+            media.className = "postMedia";
 
-    // VIEWS
-    const viewsOverlay = document.createElement("div");
-    viewsOverlay.className = "viewsOverlay";
-    viewsOverlay.innerHTML = `
-        <i class="fa-regular fa-eye"></i>
-        <span class="viewCount">${post.views ? post.views.toLocaleString() : 0}</span>
-    `;
-    mediaContainer.appendChild(viewsOverlay);
-
-    // MEDIA
-    let media;
-    if (post.file_type.startsWith("video") && isMobile) {
-        media = document.createElement("img");
-        media.src = post.thumb_url || "default.jpg";
-    } else if (post.file_type.startsWith("video")) {
-        media = document.createElement("video");
-        media.src = post.file_url;
-        media.muted = true;
-        media.loop = true;
-        media.playsInline = true;
-        media.preload = "metadata";
-    } else {
-        media = document.createElement("img");
-        media.src = post.file_url;
-    }
-
-    media.className = "postMedia";
-
-    // ✅ Wait for media to load before removing skeleton and showing overlay
-    media.addEventListener("loadeddata", () => {
-        skeleton.remove();       // remove skeleton
-        overlay.style.display = "flex"; // show overlay/profile image
-    });
-
-    media.addEventListener("load", () => {
-        skeleton.remove();
-        overlay.style.display = "flex";
-    });
-
-    // MEDIA CLICK → OPEN MODAL
-    media.addEventListener("click", () => {
-      // hide media first
-modalVideo.style.display = "none";
-modalImage.style.display = "none";
-
-// remove old skeleton if exists
-const oldSkeleton = document.querySelector(".modal-skeleton-overlay");
-if (oldSkeleton) oldSkeleton.remove();
-
-// 🔹 MODAL 9:16 SKELETON
-const modalSkeleton = document.createElement("div");
-modalSkeleton.className = "modal-skeleton-overlay";
-modalSkeleton.style.width = "100%";
-modalSkeleton.style.aspectRatio = "9/16";  // 9:16 ratio
-modalSkeleton.style.background = "#111";
-modalSkeleton.style.borderRadius = "12px";
-modalSkeleton.style.marginBottom = "10px";
-
-// append to modal media wrapper
-modal.querySelector(".modal-media-wrapper").appendChild(modalSkeleton);
-
-
-
-        currentPostId = post.id;
-        updateCommentCount();
-        loadLikes(post.id);
-        countView(post.id);
-
-        if (post.file_type.startsWith("video")) {
-          // remove old skeleton if exists
-const oldSkeleton = document.querySelector(".modal-skeleton-overlay");
-if (oldSkeleton) oldSkeleton.remove();
-
-// 🔹 MODAL 9:16 SKELETON
-const modalSkeleton = document.createElement("div");
-modalSkeleton.className = "modal-skeleton-overlay";
-modalSkeleton.style.width = "100%";
-modalSkeleton.style.aspectRatio = "9/16";  // 9:16 ratio
-modalSkeleton.style.background = "#111";
-modalSkeleton.style.borderRadius = "12px";
-modalSkeleton.style.marginBottom = "10px";
-
-// append to modal media wrapper
-modal.querySelector(".modal-media-wrapper").appendChild(modalSkeleton);
-
-            modalVideo.src = post.file_url;
-            modalVideo.addEventListener("loadeddata", () => {
-    const s = document.querySelector(".modal-skeleton-overlay");
-    if (s) s.remove();
-    modalVideo.style.display = "block";
-}, { once: true });
-
-            modalVideo.style.display = "block";
-            modalImage.style.display = "none";
-            modalVideo.controls = false;
-        } else {
-            modalImage.src = post.file_url;
-            modalImage.style.display = "block";
-            modalVideo.style.display = "none";
-        }
-
-        // MODAL TITLE
-        modalTitle.innerHTML = `
-            ${post.title || ""}
-            <div class="modalUploader" style="display:flex; align-items:center; gap:5px;">
-                <img src="${post.uploader_image ? post.uploader_image + '?t=' + Date.now() : 'default.jpg'}" class="modalUploaderDP">
-                <span>${post.uploader_name || "Unknown"}</span>
-                ${badgeHTML}
-            </div>
-        `;
-
-        const modalUploader = modalTitle.querySelector(".modalUploader");
-        if (modalUploader) {
-            modalUploader.style.cursor = "pointer";
-            modalUploader.addEventListener("click", () => {
-                const uploaderUid = post.uploader_uid;
-                if (uploaderUid) {
-                    window.location.href = `user.html?uid=${uploaderUid}`;
+            // ----------------
+            // MEDIA CLICK → OPEN MODAL
+            // ----------------
+            media.addEventListener("click", () => {
+               currentPostId = post.id;   // 🔥 VERY IMPORTANT
+    updateCommentCount();      // 🔥 FIX
+               loadLikes(post.id);
+              // ✅ REAL VIEW COUNT
+    countView(post.id);
+                if (post.file_type.startsWith("video")) {
+                    modalVideo.src = post.file_url;
+                    modalVideo.style.display = "block";
+                    modalImage.style.display = "none";
+                    modalVideo.controls = false; // hide browser controls
+                } else {
+                    modalImage.src = post.file_url;
+                    modalImage.style.display = "block";
+                    modalVideo.style.display = "none";
                 }
-            });
+
+                // MODAL TITLE
+                modalTitle.innerHTML = `
+                    ${post.title || ""}
+                    <div class="modalUploader" style="display:flex; align-items:center; gap:5px;">
+                        <img src="${post.uploader_image ? post.uploader_image + '?t=' + Date.now() : 'default.jpg'}" class="modalUploaderDP">
+                        <span>${post.uploader_name || "Unknown"}</span>
+                        ${badgeHTML}
+                    </div>
+                `;
+                // ✅ UPLOADER CLICK → USER PAGE
+const modalUploader = modalTitle.querySelector(".modalUploader");
+if (modalUploader) {
+    modalUploader.style.cursor = "pointer"; // pointer dikhe
+    modalUploader.addEventListener("click", () => {
+        const uploaderUid = post.uploader_uid;
+        if (uploaderUid) {
+            window.location.href = `user.html?uid=${uploaderUid}`;
         }
+    });
+}
 
-        const modalViewCount = document.getElementById("modalViewCount");
-        if (modalViewCount) modalViewCount.textContent = post.views.toLocaleString();
+// ✅ YAHAN ADD KARO VIEW COUNT
+    const modalViewCount = document.getElementById("modalViewCount");
+if (modalViewCount) {
 
-        modal.classList.remove("hidden");
-    
+  modalViewCount.textContent = post.views.toLocaleString();
+}
+
+
+                modal.classList.remove("hidden");
 
                 // ----------------
                 // RELATED VIDEOS
@@ -716,29 +658,14 @@ function createRelatedVideoBox(post) {
         loadLikes(post.id);
 
         if (post.file_type.startsWith("video")) {
-          
-    modalVideo.src = post.file_url;
-
-    modalVideo.addEventListener("loadeddata", () => {
-        const s = document.querySelector(".modal-skeleton-overlay");
-        if (s) s.remove();
-        modalVideo.style.display = "block";
-    }, { once: true });
-
-    modalImage.style.display = "none";
-    modalVideo.controls = false;
-} else {
-    modalImage.src = post.file_url;
-
-    modalImage.addEventListener("load", () => {
-        const s = document.querySelector(".modal-skeleton-overlay");
-        if (s) s.remove();
-        modalImage.style.display = "block";
-    }, { once: true });
-
-    modalVideo.style.display = "none";
-}
-
+            modalVideo.src = post.file_url;
+            modalVideo.style.display = "block";
+            modalImage.style.display = "none";
+        } else {
+            modalImage.src = post.file_url;
+            modalImage.style.display = "block";
+            modalVideo.style.display = "none";
+        }
 
         // Modal title
         modalTitle.innerHTML = `
@@ -754,11 +681,8 @@ function createRelatedVideoBox(post) {
         const newRelated = getSmartRelated(post, allPosts);
         relatedVideos.innerHTML = ""; // purane clear karo
         newRelated.forEach(r => createRelatedVideoBox(r)); // nayi related videos add karo
-const modalContent = modal.querySelector(".modal-content"); // modal-content आपका scrollable div
-if(modalContent) modalContent.scrollTop = 0;
 
         modal.classList.remove("hidden");
-        
     });
 
     relatedVideos.appendChild(wrap);
